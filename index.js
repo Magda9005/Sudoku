@@ -11,7 +11,6 @@ const arr = [
 
 const board=[...arr]
 
-// funkcja do swapowania 2 rowsów
 function swapRows(board,firstRowIndex,secondRowIndex){
     for(let i=firstRowIndex;i<firstRowIndex+9;i++){
     
