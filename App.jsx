@@ -1,7 +1,6 @@
 import React from "react";
-import { useState } from "react";
-import {prepareInitialBoard,changeBoardMedium,changeBoardHard,checkWholeBoard,colorSquares} from './index.js'
-
+import { useState,useEffect } from "react";
+import {prepareInitialBoard,changeBoardMedium,changeBoardHard,checkWholeBoard,colorSquares,findEmpty} from './index.js'
 const arr =[
 	4,9, 8, 2, 6, 3,1, 5, 7,
     1, 3,6,5,7,8,2,9,4,
@@ -13,20 +12,78 @@ const arr =[
     9,8,5,1,2,4,3,7,6,
     3,2,4,7,8,6,5,1,9]
 
-    let trKey=0;
+let trKey=0;
+let gameTime;
+let id=0;
+
+// modal which shows up when we press "pause button" on a stopwatch
+function PauseModal({isStopped}){
+    return(
+      <>
+           {isStopped && <div className="pause-modal">
+            </div>} 
+      </>
+    )
+  }
 
 
-    
-    function Rows({board,handleChange}){
+function Stopwatch({gameEnded,onPause,onStart}){
+  const [time,setTime]=useState(0)
+  const [isActive,setIsActive]=useState(true)
+
+
+ if (gameEnded){
+  gameTime= ("0"+Math.floor((time/60000)%60)).slice(-2)+":"+ ("0"+Math.floor((time/1000)%60)).slice(-2)
+  }
+  
+useEffect(()=>{
+  let interval=null;
+
+  if(isActive) {
+    interval=setInterval(()=>{
+      setTime(prevTime=>prevTime+10)
+    },10)
+  } else {
+    clearInterval(interval);
+  } 
+  return ()=> clearInterval(interval)
+},[isActive])
+
+
+    return (
+      <div className="timer">
+        <span>{("0"+Math.floor((time/60000)%60)).slice(-2)
+}:</span>
+        <span>{("0"+Math.floor((time/1000)%60)).slice(-2)
+}</span>
+       {!isActive? <button className="play-btn" onClick={()=>{
+         setIsActive(true);
+         onStart()
+       }}><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+       <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+       <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+     </svg></button>:<button className="stop-btn" onClick={()=>{
+        setIsActive(false);
+        onPause()
+       }}> <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+       </svg></button> }
+       </div>
+    )}
+
+
+    function Rows({board,handleChange,isDefault}){
+      // to put color on all fields containing selectedValue
       const [selectedValue,setSelectedValue]=useState(null)
+      // to put color on rows/columns/squares
       const [selectedIndex,setSelectedIndex]=useState(undefined)
-
 
       function selected(value){
         if(value===selectedValue){
           return true
         }
       }
+
       function colorRows(firstCell,index,field){
         if(index>=firstCell && index<=firstCell+8){
           for (let i=0;i<9;i++){
@@ -62,14 +119,23 @@ const arr =[
            for (let i=0;i<board.length;i+=9){
              const cells=[]
              for(let j=i; j<i+9;j++){
-               cells.push(<td key={j} style={{backgroundColor: colorFields(j)? 'lightblue':undefined}} ><input type="number" value={board[j]}
-               onChange={e=>handleChange(j,e.target.value)}
+               cells.push(<td key={j} style={{backgroundColor: colorFields(j)? 'lightblue':undefined}}>{!isDefault(j)?<div className="field" onClick={()=>{
+                setSelectedValue(board[j]);
+                setSelectedIndex(j);
+               }} style={{backgroundColor: selected(board[j])? 'lightgrey':undefined}}>{board[j]}</div>:<input type="number" pattern="[0-9]{1}"value={board[j]} 
+               onChange={e=>{
+                 handleChange(j,e.target.value);
+                }}
+              onInput={(e)=>{
+                e.target.value = Math.max(0, parseInt(e.target.value,10) ).toString().slice(0,1)
+              }
+              }
                style={{backgroundColor: selected(board[j])? 'lightgrey':undefined}}
              onClick={()=>{
                setSelectedValue(board[j]);
                setSelectedIndex(j);
               }}
-             /></td>)
+             />}</td>)
              }
              rows.push(<tr key={trKey}>{cells}</tr>)
              trKey++;
@@ -77,13 +143,14 @@ const arr =[
            return rows
          }
 
+// modal which shows up when the game is over
 function Modal({isOpen,onClick}){
 
     return(
         <>
      {isOpen && <div className="modal">         
      <h2>Gratulacje! Rozwiązałeś sudoku</h2>
-     <p> Twój czas to: 00:00</p>
+     <p> Twój czas to: {gameTime}</p>
      <button className="new-game-btn" onClick={onClick}>Nowa gra</button>
      </div>}  
      </>
@@ -91,9 +158,20 @@ function Modal({isOpen,onClick}){
 }
 
 export function App() {
- // inicjujemy planszę, która odpali się po załadowaniu strony, poziom łatwy
 let arrCopy=[...arr]
+
 const [board,setBoard]=useState(prepareInitialBoard(arrCopy))
+const [pause,setPause]=useState(false)
+const [empty,setEmpty]=useState(findEmpty(board))
+
+const [time,setTime]=useState(0)
+const [isActive,setIsActive]=useState(false)
+
+function handleDefault(v){
+        if(empty.includes(v)){
+          return true
+        }
+      }
 
 function onChange(index,value){
     setBoard(board.map((field,ind)=>{
@@ -108,11 +186,53 @@ function onChange(index,value){
    }
 
    function handleNewGame(){
+    id++;
     let easy=[...arr]
-    setBoard(prepareInitialBoard(easy));
+    let b=prepareInitialBoard(easy)
+    setBoard(b);
+    setEmpty(findEmpty(b));
     setShowModal(false);
-    setOverlayClass(null)
+    setOverlayClass(null);
 }
+
+
+function handleStart(){
+  setPause(false);
+}
+
+function handlePause(){
+    setPause(true)
+}
+
+
+function handleChangeLevel(e){
+  if (e.target.value==="medium"){
+    let medium=[...arr]
+    id++;
+    let m=changeBoardMedium(medium)
+    setBoard(m);
+    setEmpty(findEmpty(m));
+    setPause(false);
+  return board;
+}  else if (e.target.value==="hard"){
+    let hard=[...arr]
+    id++;
+    let h=changeBoardHard(hard)
+    setBoard(h);
+    setEmpty(findEmpty(h));
+    setPause(false);
+    return board
+} else if(e.target.value==="easy"){
+   let easy=[...arr]
+   id++;
+   let es=prepareInitialBoard(easy)
+   setBoard(es);
+   setEmpty(findEmpty(es));
+   setPause(false);
+   return board
+}
+}
+
 
     return(
 <>
@@ -122,57 +242,29 @@ function onChange(index,value){
     <div className="difficulty-timer-area">
         <div className="difficulty-level">
         <label>Poziom trudności: </label>
-        <select onChange={e=>{
-            if (e.target.value==="medium"){
-                console.log('medium')
-                let medium=[...arr]
-              return  setBoard(changeBoardMedium(medium))
-            }  else if (e.target.value==="hard"){
-                console.log('hard')
-                let hard=[...arr]
-              return  setBoard(changeBoardHard(hard))         
-            } else if(e.target.value==="easy"){
-               console.log('easy')
-               let easy=[...arr]
-              return  setBoard(prepareInitialBoard(easy))
-            }
-        }}>
+        <select onChange={e=>{handleChangeLevel(e)}}>
             <option value="easy">Łatwy </option>
             <option value="medium">Średni </option>
             <option value="hard">Trudny </option>
         </select>
         </div>
-        <div className="timer">
-       00:00<button className="stop-btn"> <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-</svg></button>
-        </div>
+      <Stopwatch key={id}
+      gameEnded={checkWholeBoard(board)} onPause={handlePause} onStart={handleStart}
+      />
     </div>
-<table>
+    <div className="board">
+      <PauseModal isStopped={pause} onPlay={()=>setPause(false)}/>
+      <table>
     <tbody>
-        <Rows board={board} handleChange={onChange} 
-        // colorInputs={putColorOnInputs}
+        <Rows board={board} handleChange={onChange}
+        isDefault={handleDefault}
         />
     </tbody>
 </table>
+</div>
   </div>
   <Modal isOpen={checkWholeBoard(board)} onClick={handleNewGame}/>
-
 </>
     )
 }
-
-// doiglic - usuwanie drugiej cyfry zeby dalo sie wpisac tylko jedną
-
-
-// dla pętli i=0;i<7;i+=3    ->0,3,6 
- 
-
-// if(selectedIndex===i+10 && selectedIndex-10===j || selectedIndex+10===j ||  ){
-//  return true
-// }
-// if(selectedIndex>=i && selectedIndex<i+2 || selectedIndex>=i+9 && selectedIndex<i+12 || selectedIndex>=i+18 && selectedIndex<i+21 && selectedIndex-8===j || selectedIndex+8===j || selectedIndex-10===j || selectedIndex+7===j){
-//   return true
-// }
-// }
 
