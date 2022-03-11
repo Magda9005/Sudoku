@@ -11,6 +11,7 @@ const arr = [
 
 const board=[...arr]
 
+
 function swapRows(board,firstRowIndex,secondRowIndex){
     for(let i=firstRowIndex;i<firstRowIndex+9;i++){
     
@@ -159,7 +160,9 @@ return board
           board[indexesToBeCleared[j]]=""
         }
         return board
+
       }
+
 
       function clearRandomFieldsHard(board){
         let indexesToBeCleared=[]
@@ -171,8 +174,9 @@ return board
         for(let j=0;j<indexesToBeCleared.length;j++){
           board[indexesToBeCleared[j]]=""
         }
-        return board
+        return board 
       }
+
 
 // miesza rowsy, kolumny i usuwa randomowo 62 pola 
  export   function prepareInitialBoard(board){
@@ -196,6 +200,8 @@ return board
             return board
                 }
 
+               
+
 function checkRow(board, row) {
 	let usedNumbers = [];
 
@@ -204,6 +210,7 @@ function checkRow(board, row) {
 			typeof board[i] !== "number" ||
 			board[i] <= 0 ||
 			board[i] > 9 ||
+     isNaN( board[i])||
 			usedNumbers.includes(board[i])
 		) {
 			return false;
@@ -231,6 +238,7 @@ function checkColumn(board, column) {
 			typeof board[i] !== "number" ||
 			board[i] <= 0 ||
 			board[i] > 9 ||
+      board[i]==NaN||
 			usedNumbers.includes(board[i])
 		) {
 			return false;
@@ -288,15 +296,6 @@ function checkRowOfSquares(board,index){
     return true
 }
 
-// function checkAllSquares(board){
-//     for(let i=0;i<55;i+=27){
-//         if(!checkRowOfSquares(board,i)){
-//             return false
-//         }
-//     }
-//     return true;
-// }
-
 
 
 export function checkWholeBoard(board){
@@ -307,9 +306,7 @@ export function checkWholeBoard(board){
         if (!checkRow(board, i*9)) {
 			return false;
 		}
-        
 	}
-// tutaj myślałam, żeby zmienić tak jak wyżej na i*27 ale nie działa 
     for(let i=0;i<55;i+=27){
                 if(!checkRowOfSquares(board,i)){
                     return false
@@ -359,4 +356,15 @@ export function colorSquares(index,selectedIndex,j){
 
   }
 
+}
+
+// function to find empty fields in a initial board
+export function findEmpty(board){
+  let ind=[];
+  for (let i=0;i<board.length;i++){
+    if(board[i]===''){
+      ind.push(i)
+    }
+  }
+  return ind
 }
