@@ -1,5 +1,6 @@
 import React, { FunctionComponent } from "react";
 import { useState, useEffect } from "react";
+import { NumberLiteralType } from "typescript";
 import {
 	prepareInitialBoard,
 	changeBoardMedium,
@@ -10,10 +11,8 @@ import {
 	formatTime,
 	colorRows,
 	colorColumns,
-} from "./functions.ts";
-import { useTimer } from "./hooks.js";
-
-
+} from "./functions";
+import { useTimer } from "./hooks";
 
 const arr: number[] = [
 	4, 9, 8, 2, 6, 3, 1, 5, 7, 1, 3, 6, 5, 7, 8, 2, 9, 4, 5, 7, 2, 4, 9, 1, 6, 8,
@@ -26,7 +25,7 @@ const StopIcon: FunctionComponent = () => {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
-			class="h-6 w-6"
+			className="h-6 w-6"
 			fill="none"
 			viewBox="0 0 24 24"
 			stroke="currentColor">
@@ -40,30 +39,30 @@ const StopIcon: FunctionComponent = () => {
 	);
 };
 
-const StartIcon:FunctionComponent=()=> {
+const StartIcon: FunctionComponent = () => {
 	return (
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				class="h-6 w-6"
-				fill="none"
-				viewBox="0 0 24 24"
-				stroke="currentColor"
-				stroke-width="2">
-				<path
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-				/>
-				<path
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-				/>
-			</svg>
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			className="h-6 w-6"
+			fill="none"
+			viewBox="0 0 24 24"
+			stroke="currentColor"
+			stroke-width="2">
+			<path
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+			/>
+			<path
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+			/>
+		</svg>
 	);
-}
+};
 
-const PlayIconOnModal:FunctionComponent=()=> {
+const PlayIconOnModal: FunctionComponent = () => {
 	return (
 		<>
 			<svg
@@ -86,7 +85,7 @@ const PlayIconOnModal:FunctionComponent=()=> {
 			</svg>
 		</>
 	);
-}
+};
 
 type PauseModalProps = {
 	isStopped: boolean;
@@ -146,7 +145,7 @@ type TdProps = {
 	index: number;
 	isHighlighted: boolean;
 	isNotEditable: boolean;
-	value: "" | number|string;
+	value: "" | number | string;
 	onSelect: (parameter: number) => void;
 	onChange: (param1: number, param2: string) => void;
 	isSelected: boolean;
@@ -202,7 +201,7 @@ const Td: FunctionComponent<TdProps> = ({
 };
 
 type RowsProps = {
-	board: ("" | number|string)[];
+	board: ("" | number | string)[];
 	onChange: (param1: number, param2: string) => void;
 	isNotEditable: (parameter: number) => boolean;
 };
@@ -210,10 +209,10 @@ type RowsProps = {
 const Rows: FunctionComponent<RowsProps> = ({
 	board,
 	onChange,
-	isNotEditable
+	isNotEditable,
 }) => {
 	// to put color on rows/columns/squares
-	const [selectedIndex, setSelectedIndex] = useState(undefined);
+	const [selectedIndex, setSelectedIndex] = useState(-1);
 
 	function highlightFields(j: number): boolean {
 		const lastRowStartIndex: number = 73;
@@ -247,7 +246,7 @@ const Rows: FunctionComponent<RowsProps> = ({
 		}
 		rows.push(<tr key={i}>{cells}</tr>);
 	}
-	return rows;
+	return <>{rows}</>;
 };
 
 type ModalProps = {
@@ -287,31 +286,22 @@ export function App() {
 		}
 	}, [board]);
 
-	function checkIfIsNotEditable(v:number):boolean {
+	function checkIfIsNotEditable(v: number): boolean {
 		if (editableFields.includes(v)) {
 			return true;
 		}
 	}
 
-	function handleChange(index:number, value:string):void {
+	function handleChange(index: number, value: string): void {
 		const copy = [...board];
-		copy[index] = parseInt(value);
+		const parsedValue: number = parseInt(value);
 
-		if (isNaN(copy[index])) {
-			copy[index] = "";
-		}
+		isNaN(parsedValue) ? copy[index] = "": copy[index] = parsedValue;
 
 		setBoard(copy);
 	}
 
-	// function handleChange(index, value) {
-	// 	const copy = [...board];
-	// 	copy[index] = parseInt(value);
-	// 	setBoard(copy);
-	//   console.log(board)
-	// }
-
-	function handleNewGame():void {
+	function handleNewGame(): void {
 		timer.reset();
 		handleStart();
 		if (difficultyLevel === "easy") {
@@ -325,7 +315,7 @@ export function App() {
 		}
 	}
 
-	function handleStart():void {
+	function handleStart(): void {
 		timer.startTimer();
 		setPause(false);
 	}
@@ -335,9 +325,13 @@ export function App() {
 		setPause(true);
 	}
 
-	function changeLevel(board:(""|number)[],arr:number[], func):(""|number)[] {
-		let newBoard:number[] = [...arr];
-		let level:(""|number)[] = func(newBoard);
+	function changeLevel(
+		board: ("" | number)[],
+		arr: number[],
+		func
+	): ("" | number)[] {
+		let newBoard: number[] = [...arr];
+		let level: ("" | number)[] = func(newBoard);
 		setBoard(level);
 		setEditableFields(findEmpty(level));
 		timer.reset();
@@ -371,7 +365,7 @@ export function App() {
 					<div className="difficulty-level">
 						<label>Poziom trudności: </label>
 						<select
-							onChange={(e:React.ChangeEvent<HTMLSelectElement>) => {
+							onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
 								handleChangeLevel(e.target.value);
 							}}>
 							<option value="easy">Łatwy </option>
