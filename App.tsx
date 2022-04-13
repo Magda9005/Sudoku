@@ -5,12 +5,10 @@ import {
 	prepareInitialBoard,
 	changeBoardMedium,
 	changeBoardHard,
-	checkIfWholeBoardCorrectlyCompleted,
-	colorSquares,
+	isBoardCorrectlyCompleted,
 	findEmpty,
 	formatTime,
-	colorRows,
-	colorColumns,
+	isCellHighlighted,
 } from "./functions";
 import { useTimer } from "./hooks";
 
@@ -21,48 +19,44 @@ const arr: number[] = [
 	5, 1, 9,
 ];
 
-const StopIcon: FunctionComponent = () => {
-	return (
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			className="h-6 w-6"
-			fill="none"
-			viewBox="0 0 24 24"
-			stroke="currentColor">
-			<path
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				stroke-width="2"
-				d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"
-			/>
-		</svg>
-	);
-};
+const StopIcon: React.FC = () => (
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		className="h-6 w-6"
+		fill="none"
+		viewBox="0 0 24 24"
+		stroke="currentColor">
+		<path
+			stroke-linecap="round"
+			stroke-linejoin="round"
+			stroke-width="2"
+			d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"
+		/>
+	</svg>
+);
 
-const StartIcon: FunctionComponent = () => {
-	return (
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			className="h-6 w-6"
-			fill="none"
-			viewBox="0 0 24 24"
-			stroke="currentColor"
-			stroke-width="2">
-			<path
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-			/>
-			<path
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-			/>
-		</svg>
-	);
-};
+const StartIcon: React.FC = () => (
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		className="h-6 w-6"
+		fill="none"
+		viewBox="0 0 24 24"
+		stroke="currentColor"
+		stroke-width="2">
+		<path
+			stroke-linecap="round"
+			stroke-linejoin="round"
+			d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+		/>
+		<path
+			stroke-linecap="round"
+			stroke-linejoin="round"
+			d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+		/>
+	</svg>
+);
 
-const PlayIconOnModal: FunctionComponent = () => {
+const PlayIconOnModal: React.FC = () => {
 	return (
 		<>
 			<svg
@@ -92,11 +86,7 @@ type PauseModalProps = {
 	onStart: () => void;
 };
 
-// modal which shows up when we press "pause button" on a stopwatch
-const PauseModal: FunctionComponent<PauseModalProps> = ({
-	isStopped,
-	onStart,
-}) => {
+const PauseModal: React.FC<PauseModalProps> = ({ isStopped, onStart }) => {
 	return (
 		<>
 			{isStopped && (
@@ -117,7 +107,7 @@ type StopwatchProps = {
 	isActive: boolean;
 };
 
-const Stopwatch: FunctionComponent<StopwatchProps> = ({
+const Stopwatch: React.FC<StopwatchProps> = ({
 	onPause,
 	onStart,
 	time,
@@ -144,17 +134,17 @@ type TdProps = {
 	key?: number;
 	index: number;
 	isHighlighted: boolean;
-	isNotEditable: boolean;
+	isDisabled: boolean;
 	value: "" | number | string;
-	onSelect: (parameter: number) => void;
-	onChange: (param1: number, param2: string) => void;
+	onSelect: (index: number) => void;
+	onChange: (index: number, value: string) => void;
 	isSelected: boolean;
 };
 
-const Td: FunctionComponent<TdProps> = ({
+const Td: React.FC<TdProps> = ({
 	index,
 	isHighlighted,
-	isNotEditable,
+	isDisabled,
 	value,
 	onSelect,
 	onChange,
@@ -164,7 +154,7 @@ const Td: FunctionComponent<TdProps> = ({
 		<td
 			key={index}
 			style={{ backgroundColor: isHighlighted ? "lightblue" : undefined }}>
-			{isNotEditable ? (
+			{isDisabled ? (
 				<input
 					type="number"
 					pattern="[0-9]{1}"
@@ -202,30 +192,12 @@ const Td: FunctionComponent<TdProps> = ({
 
 type RowsProps = {
 	board: ("" | number | string)[];
-	onChange: (param1: number, param2: string) => void;
-	isNotEditable: (parameter: number) => boolean;
+	onChange: (index: number, value: string) => void;
+	isDisabled: (parameter: number) => boolean;
 };
 
-const Rows: FunctionComponent<RowsProps> = ({
-	board,
-	onChange,
-	isNotEditable,
-}) => {
-	// to put color on rows/columns/squares
-	const [selectedIndex, setSelectedIndex] = useState(-1);
-
-	function highlightFields(j: number): boolean {
-		const lastRowStartIndex: number = 73;
-		for (let i: number = 0; i < lastRowStartIndex; i += 9) {
-			if (colorColumns(i, j, selectedIndex)) {
-				return true;
-			}
-			if (colorRows(i, selectedIndex, j)) {
-				return true;
-			}
-		}
-		return [0, 27, 54].some((index) => colorSquares(index, selectedIndex, j));
-	}
+const Rows: React.FC<RowsProps> = ({ board, onChange, isDisabled }) => {
+	const [selectedIndex, setSelectedIndex] = useState(undefined);
 
 	const rows: JSX.Element[] = [];
 	for (let i: number = 0; i < board.length; i += 9) {
@@ -235,8 +207,8 @@ const Rows: FunctionComponent<RowsProps> = ({
 				<Td
 					key={j}
 					index={j}
-					isHighlighted={highlightFields(j)}
-					isNotEditable={isNotEditable(j)}
+					isHighlighted={isCellHighlighted(j, selectedIndex)}
+					isDisabled={isDisabled(j)}
 					onSelect={setSelectedIndex}
 					onChange={onChange}
 					isSelected={board[j] === board[selectedIndex]}
@@ -249,14 +221,17 @@ const Rows: FunctionComponent<RowsProps> = ({
 	return <>{rows}</>;
 };
 
-type ModalProps = {
+type FinishedGameModalProps = {
 	isOpen: boolean;
 	onClick: () => void;
 	result: number;
 };
 
-// modal which shows up when the game is over
-const Modal: FunctionComponent<ModalProps> = ({ isOpen, onClick, result }) => {
+const FinishedGameModal: React.FC<FinishedGameModalProps> = ({
+	isOpen,
+	onClick,
+	result,
+}) => {
 	return (
 		<>
 			{isOpen && (
@@ -274,99 +249,93 @@ const Modal: FunctionComponent<ModalProps> = ({ isOpen, onClick, result }) => {
 
 export function App() {
 	const [board, setBoard] = useState(() => prepareInitialBoard(arr));
-	const [pause, setPause] = useState(false);
-	const [editableFields, setEditableFields] = useState(findEmpty(board));
+	const [paused, setPaused] = useState(false);
+	const [editableFields, setEditableFields] = useState(() => findEmpty(board));
 	const timer = useTimer();
-	const [difficultyLevel, setDifficultyLevel] = useState("easy");
+	type DifficultyLevel = "easy" | "medium" | "hard";
+	const [difficultyLevel, setDifficultyLevel] =
+		useState<DifficultyLevel>("easy");
 
-	// pause timer when the game is over
 	useEffect(() => {
-		if (checkIfWholeBoardCorrectlyCompleted(board)) {
+		if (isBoardCorrectlyCompleted(board)) {
 			timer.pauseTimer();
 		}
 	}, [board]);
 
-	function checkIfIsNotEditable(v: number): boolean {
-		if (editableFields.includes(v)) {
-			return true;
-		}
-	}
+	const isDisabled = (value: number): boolean => editableFields.includes(value);
 
-	function handleChange(index: number, value: string): void {
+	const handleChange = (index: number, value: string): void => {
 		const copy = [...board];
 		const parsedValue: number = parseInt(value);
 
-		isNaN(parsedValue) ? copy[index] = "": copy[index] = parsedValue;
+		isNaN(parsedValue) ? (copy[index] = "") : (copy[index] = parsedValue);
 
 		setBoard(copy);
-	}
+	};
 
-	function handleNewGame(): void {
+	const handleNewGame = (): void => {
 		timer.reset();
 		handleStart();
 		if (difficultyLevel === "easy") {
-			let newBoard = prepareInitialBoard(arr);
-			setBoard(newBoard);
-			setEditableFields(findEmpty(newBoard));
+			changeDifficulty(board, arr, prepareInitialBoard);
 		} else if (difficultyLevel === "medium") {
-			changeLevel(board, arr, changeBoardMedium);
+			changeDifficulty(board, arr, changeBoardMedium);
 		} else if (difficultyLevel === "hard") {
-			changeLevel(board, arr, changeBoardHard);
+			changeDifficulty(board, arr, changeBoardHard);
 		}
-	}
+	};
 
-	function handleStart(): void {
+	const handleStart = (): void => {
 		timer.startTimer();
-		setPause(false);
-	}
+		setPaused(false);
+	};
 
-	function handlePause() {
+	const handlePause = (): void => {
 		timer.pauseTimer();
-		setPause(true);
-	}
+		setPaused(true);
+	};
 
-	function changeLevel(
+	const changeDifficulty = (
 		board: ("" | number)[],
 		arr: number[],
 		func
-	): ("" | number)[] {
+	): ("" | number)[] => {
 		let newBoard: number[] = [...arr];
-		let level: ("" | number)[] = func(newBoard);
-		setBoard(level);
-		setEditableFields(findEmpty(level));
+		let difficulty: ("" | number)[] = func(newBoard);
+		setBoard(difficulty);
+		setEditableFields(findEmpty(difficulty));
 		timer.reset();
 		handleStart();
 		return board;
-	}
+	};
 
-	function handleChangeLevel(level) {
-		if (level === "medium") {
-			changeLevel(board, arr, changeBoardMedium);
+	const handleChangeDifficulty = (difficulty) => {
+		if (difficulty === "medium") {
+			changeDifficulty(board, arr, changeBoardMedium);
 			setDifficultyLevel("medium");
-		} else if (level === "hard") {
-			handleNewGame();
-			changeLevel(board, arr, changeBoardHard);
+		} else if (difficulty === "hard") {
+			changeDifficulty(board, arr, changeBoardHard);
 			setDifficultyLevel("hard");
-		} else if (level === "easy") {
-			changeLevel(board, arr, prepareInitialBoard);
+		} else if (difficulty === "easy") {
+			changeDifficulty(board, arr, prepareInitialBoard);
 			setDifficultyLevel("easy");
 		}
-	}
+	};
 
 	return (
 		<>
 			<div className="container">
 				<div
 					className={
-						checkIfWholeBoardCorrectlyCompleted(board) ? "overlay" : undefined
+						isBoardCorrectlyCompleted(board) ? "overlay" : undefined
 					}></div>
 				<h1>Sudoku</h1>
 				<div className="difficulty-timer-area">
 					<div className="difficulty-level">
 						<label>Poziom trudności: </label>
 						<select
-							onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-								handleChangeLevel(e.target.value);
+							onChange={(e) => {
+								handleChangeDifficulty(e.target.value);
 							}}>
 							<option value="easy">Łatwy </option>
 							<option value="medium">Średni </option>
@@ -381,20 +350,20 @@ export function App() {
 					/>
 				</div>
 				<div className="board">
-					<PauseModal isStopped={pause} onStart={handleStart} />
+					<PauseModal isStopped={paused} onStart={handleStart} />
 					<table>
 						<tbody>
 							<Rows
 								board={board}
 								onChange={handleChange}
-								isNotEditable={checkIfIsNotEditable}
+								isDisabled={isDisabled}
 							/>
 						</tbody>
 					</table>
 				</div>
 			</div>
-			<Modal
-				isOpen={checkIfWholeBoardCorrectlyCompleted(board)}
+			<FinishedGameModal
+				isOpen={isBoardCorrectlyCompleted(board)}
 				onClick={handleNewGame}
 				result={timer.time}
 			/>

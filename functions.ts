@@ -9,6 +9,22 @@ const board: number[] = [...arr];
 
 type Board = ("" | number)[];
 
+export function isCellHighlighted(
+	index: number,
+	selectedIndex: number
+): boolean {
+	const lastRowStartIndex: number = 73;
+	for (let i: number = 0; i < lastRowStartIndex; i += 9) {
+		if (
+			colorColumns(i, index, selectedIndex) ||
+			colorRows(i, selectedIndex, index)
+		) {
+			return true;
+		}
+	}
+	return [0, 27, 54].some((cell) => colorSquares(cell, selectedIndex, index));
+}
+
 function swapRows(
 	board: Board,
 	firstRowIndex: number,
@@ -29,7 +45,6 @@ function swapRows(
 	}
 }
 
-// funkcja do swapowania 2 kolumn
 function swapColumns(
 	board: Board,
 	firstColumnIndex: number,
@@ -50,23 +65,22 @@ function swapColumns(
 	}
 }
 
-// mieszanie wszystkich rowsów
 function mixAllRows(board: Board): void {
-	// będziemy mieszać pierwszy rząd kwadratów,wyznaczamy możliwe first i secondIndexy
+	// mixing first row of squares; indicating first and second possible index
 	const firstRowInd0: number[] = [0, 9];
 	const secondRowInd0: number[] = [9, 18];
 	let chosenFirstIndex: number = firstRowInd0[Math.floor(Math.random() * 2)];
 	let chosenSecondIndex: number = secondRowInd0[Math.floor(Math.random() * 2)];
 
-	// wywolujemy funkcję do mieszania rowsow pierwszy raz
+	// calling function to mix rows first time
 	swapRows(board, chosenFirstIndex, chosenSecondIndex);
-	//   losujemy drugi raz first i secondIndex
+	//drawing first and second index second time
 	chosenFirstIndex = firstRowInd0[Math.floor(Math.random() * 2)];
 	chosenSecondIndex = secondRowInd0[Math.floor(Math.random() * 2)];
-	//   wywołujemy funkcję mieszającą rowsy drugi raz
+	// calling function to mix rows first time
 	swapRows(board, chosenFirstIndex, chosenSecondIndex);
 
-	// mieszamy drugi rząd kwadratów
+	// mixing second row of squares
 	const firstRowInd27: number[] = [27, 36];
 	const secondRowInd27: number[] = [36, 45];
 	chosenFirstIndex = firstRowInd27[Math.floor(Math.random() * 2)];
@@ -76,7 +90,7 @@ function mixAllRows(board: Board): void {
 	chosenSecondIndex = secondRowInd27[Math.floor(Math.random() * 2)];
 	swapRows(board, chosenFirstIndex, chosenSecondIndex);
 
-	// mieszamy ostatni rząd kwadratów
+	// mixing the last row of squares
 	const firstRowInd54: number[] = [54, 63];
 	const secondRowInd54: number[] = [63, 72];
 	chosenFirstIndex = firstRowInd54[Math.floor(Math.random() * 2)];
@@ -87,23 +101,22 @@ function mixAllRows(board: Board): void {
 	swapRows(board, chosenFirstIndex, chosenSecondIndex);
 }
 
-// mieszanie wszystkich kolumn
 function mixAllColumns(board: Board): void {
-	// będziemy mieszać pierwszą kolumne kwadratów,wyznaczamy możliwe first i secondIndexy
+	// mixing first column of squares, indicating possible first and second index
 	const firstColInd0: number[] = [0, 1];
 	const secondColInd0: number[] = [1, 2];
 	let chosenFirstColIndex: number = firstColInd0[Math.floor(Math.random() * 2)];
 	let chosenSecondColIndex: number =
 		secondColInd0[Math.floor(Math.random() * 2)];
 
-	// wywolujemy funkcję do mieszania kolumn pierwszy raz
+	// calling function to mix columns first time
 	swapColumns(board, chosenFirstColIndex, chosenSecondColIndex);
-	//   losujemy drugi raz first i secondIndex
+	//drawing first and second index second time
 	chosenFirstColIndex = firstColInd0[Math.floor(Math.random() * 2)];
 	chosenSecondColIndex = secondColInd0[Math.floor(Math.random() * 2)];
-	//   wywołujemy funkcję mieszającą kolumny drugi raz
+	// calling function to mix columns first time
 	swapColumns(board, chosenFirstColIndex, chosenSecondColIndex);
-	//   mieszamy drugą kolumnę kwadratów
+	// mixing second column of squares
 	const firstColInd3: number[] = [3, 4];
 	const secondColInd3: number[] = [4, 5];
 	chosenFirstColIndex = firstColInd3[Math.floor(Math.random() * 2)];
@@ -113,7 +126,7 @@ function mixAllColumns(board: Board): void {
 	chosenSecondColIndex = secondColInd3[Math.floor(Math.random() * 2)];
 	swapColumns(board, chosenFirstColIndex, chosenSecondColIndex);
 
-	// mieszamy trzecią kolumnę kwadratów
+	// mixing third column of squares
 	const firstColInd6: number[] = [6, 7];
 	const secondColInd6: number[] = [7, 8];
 	chosenFirstColIndex = firstColInd6[Math.floor(Math.random() * 2)];
@@ -124,10 +137,9 @@ function mixAllColumns(board: Board): void {
 	swapColumns(board, chosenFirstColIndex, chosenSecondColIndex);
 }
 
-// czyszczenie randomowych pól tablicy
-function clearRandomFieldsEasy(board: Board): void {
+function clearRandomFields(board: Board, quantity: number): void {
 	let indexesToBeCleared: number[] = [];
-	for (let i: number = 0; i < 3; i++) {
+	for (let i: number = 0; i < quantity; i++) {
 		let randomIndex: number = Math.floor(Math.random() * 80);
 		indexesToBeCleared.push(randomIndex);
 	}
@@ -137,54 +149,29 @@ function clearRandomFieldsEasy(board: Board): void {
 	}
 }
 
-function clearRandomFieldsMedium(board: Board): void {
-	let indexesToBeCleared: number[] = [];
-	for (let i: number = 0; i < 6; i++) {
-		let randomIndex: number = Math.floor(Math.random() * 80);
-		indexesToBeCleared.push(randomIndex);
-	}
-
-	for (let j: number = 0; j < indexesToBeCleared.length; j++) {
-		board[indexesToBeCleared[j]] = "";
-	}
-}
-
-function clearRandomFieldsHard(board: Board): void {
-	let indexesToBeCleared: number[] = [];
-	for (let i: number = 0; i < 56; i++) {
-		let randomIndex: number = Math.floor(Math.random() * 80);
-		indexesToBeCleared.push(randomIndex);
-	}
-
-	for (let j: number = 0; j < indexesToBeCleared.length; j++) {
-		board[indexesToBeCleared[j]] = "";
-	}
-}
-
-// miesza rowsy, kolumny i usuwa randomowo 62 pola
 export function prepareInitialBoard(board: Board): Board {
 	let boardCopy = [...board];
 	mixAllRows(boardCopy);
 	mixAllColumns(boardCopy);
-	clearRandomFieldsEasy(boardCopy);
+	clearRandomFields(boardCopy, 3);
 	return boardCopy;
 }
 
 export function changeBoardMedium(board: Board) {
 	mixAllRows(board);
 	mixAllColumns(board);
-	clearRandomFieldsMedium(board);
+	clearRandomFields(board, 6);
 	return board;
 }
 
 export function changeBoardHard(board: Board) {
 	mixAllRows(board);
 	mixAllColumns(board);
-	clearRandomFieldsHard(board);
+	clearRandomFields(board, 56);
 	return board;
 }
 
-function checkIfRowCorrectlyFilled(board: Board, row: number): boolean {
+function isRowCorrectlyFilled(board: Board, row: number): boolean {
 	let usedNumbers: (number | "")[] = [];
 
 	for (let i: number = row; i < row + 9; i++) {
@@ -202,7 +189,7 @@ function checkIfRowCorrectlyFilled(board: Board, row: number): boolean {
 	return true;
 }
 
-function checkIfColumnCorrectlyFilled(board: Board, column: number): boolean {
+function isColumnCorrectlyFilled(board: Board, column: number): boolean {
 	let usedNumbers: ("" | number)[] = [];
 
 	for (let i: number = column; i < column + 73; i += 9) {
@@ -220,31 +207,19 @@ function checkIfColumnCorrectlyFilled(board: Board, column: number): boolean {
 	return true;
 }
 
-// wystarczy sprawdzić czy się nie powtarzają liczby w kwardracie bo funkcja sprawdzająca rzędy i kolumny sprawdza już czy nie ma tam innych znaków niż cyfry od 1-9
-
-function checkIfSingleSquareCorrectlyCompleted(
-	board: Board,
-	index: number
-): boolean {
-	let usedNumbers: (number|string)[] = [];
+// Kuba, can you check if now this is correct (comparing to the previous version)?
+function isSquareCorrectlyCompleted(board: Board, index: number): boolean {
+	let usedNumbers: (number | string)[] = [];
 	for (let i: number = index; i < index + 19; i += 9) {
-		if (board[i] === "") {
-			return false;
-		}
-		if (usedNumbers.includes(board[i])) {
-			return false;
-		} else {
-			usedNumbers.push(board[i]);
-		}
-		if (usedNumbers.includes(board[i + 1])) {
-			return false;
-		} else {
-			usedNumbers.push(board[i + 1]);
-		}
-		if (usedNumbers.includes(board[i + 2])) {
-			return false;
-		} else {
-			usedNumbers.push(board[i + 2]);
+		for (let j: number = i; j < i + 3; j += i + 1) {
+			if (board[j] === "") {
+				return false;
+			}
+			if (usedNumbers.includes(board[j])) {
+				return false;
+			} else {
+				usedNumbers.push(board[j]);
+			}
 		}
 	}
 	return true;
@@ -252,19 +227,19 @@ function checkIfSingleSquareCorrectlyCompleted(
 
 function checkRowOfSquares(board: Board, index: number): boolean {
 	for (let i: number = index; i < index + 7; i += 3) {
-		if (!checkIfSingleSquareCorrectlyCompleted(board, i)) {
+		if (!isSquareCorrectlyCompleted(board, i)) {
 			return false;
 		}
 	}
 	return true;
 }
 
-export function checkIfWholeBoardCorrectlyCompleted(board: Board): boolean {
+export function isBoardCorrectlyCompleted(board: Board): boolean {
 	for (let i: number = 0; i < 9; i++) {
-		if (!checkIfColumnCorrectlyFilled(board, i)) {
+		if (!isColumnCorrectlyFilled(board, i)) {
 			return false;
 		}
-		if (!checkIfRowCorrectlyFilled(board, i * 9)) {
+		if (!isRowCorrectlyFilled(board, i * 9)) {
 			return false;
 		}
 	}
@@ -401,7 +376,6 @@ export function colorSquares(
 	}
 }
 
-// function to find empty fields in a initial board
 export function findEmpty(board: Board): number[] {
 	let indices: number[] = [];
 	for (let i: number = 0; i < board.length; i++) {
