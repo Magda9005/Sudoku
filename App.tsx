@@ -2,13 +2,12 @@ import React, { FunctionComponent } from "react";
 import { useState, useEffect } from "react";
 import { NumberLiteralType } from "typescript";
 import {
-	prepareInitialBoard,
-	changeBoardMedium,
-	changeBoardHard,
+	prepareBoard,
 	isBoardCorrectlyCompleted,
 	findEmpty,
 	formatTime,
 	isCellHighlighted,
+	DifficultyLevel
 } from "./functions";
 import { useTimer } from "./hooks";
 
@@ -56,49 +55,43 @@ const StartIcon: React.FC = () => (
 	</svg>
 );
 
-const PlayIconOnModal: React.FC = () => {
-	return (
-		<>
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				className="h-6 w-6 modalIcon"
-				fill="none"
-				viewBox="0 0 24 24"
-				stroke="currentColor"
-				strokeWidth={2}>
-				<path
-					strokeLinecap="round"
-					strokeLinejoin="round"
-					d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-				/>
-				<path
-					strokeLinecap="round"
-					strokeLinejoin="round"
-					d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-				/>
-			</svg>
-		</>
-	);
-};
+const PlayIconOnModal: React.FC = () => (
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		className="h-6 w-6 modalIcon"
+		fill="none"
+		viewBox="0 0 24 24"
+		stroke="currentColor"
+		strokeWidth={2}>
+		<path
+			strokeLinecap="round"
+			strokeLinejoin="round"
+			d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+		/>
+		<path
+			strokeLinecap="round"
+			strokeLinejoin="round"
+			d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+		/>
+	</svg>
+);
 
 type PauseModalProps = {
 	isStopped: boolean;
 	onStart: () => void;
 };
 
-const PauseModal: React.FC<PauseModalProps> = ({ isStopped, onStart }) => {
-	return (
-		<>
-			{isStopped && (
-				<div className="pause-modal">
-					<button onClick={onStart} className="play-button">
-						<PlayIconOnModal />
-					</button>
-				</div>
-			)}
-		</>
-	);
-};
+const PauseModal: React.FC<PauseModalProps> = ({ isStopped, onStart }) => (
+	<>
+		{isStopped && (
+			<div className="pause-modal">
+				<button onClick={onStart} className="play-button">
+					<PlayIconOnModal />
+				</button>
+			</div>
+		)}
+	</>
+);
 
 type StopwatchProps = {
 	onPause: () => void;
@@ -112,24 +105,21 @@ const Stopwatch: React.FC<StopwatchProps> = ({
 	onStart,
 	time,
 	isActive,
-}) => {
-	return (
-		<div className="timer">
-			{formatTime(time)}
-			{isActive ? (
-				<button className="stop-btn" onClick={onPause}>
-					{" "}
-					<StopIcon />
-				</button>
-			) : (
-				<button className="play-btn" onClick={onStart}>
-					<StartIcon />
-				</button>
-			)}
-		</div>
-	);
-};
-
+}) => (
+	<div className="timer">
+		{formatTime(time)}
+		{isActive ? (
+			<button className="stop-btn" onClick={onPause}>
+				{" "}
+				<StopIcon />
+			</button>
+		) : (
+			<button className="play-btn" onClick={onStart}>
+				<StartIcon />
+			</button>
+		)}
+	</div>
+);
 type TdProps = {
 	key?: number;
 	index: number;
@@ -149,46 +139,44 @@ const Td: React.FC<TdProps> = ({
 	onSelect,
 	onChange,
 	isSelected,
-}) => {
-	return (
-		<td
-			key={index}
-			style={{ backgroundColor: isHighlighted ? "lightblue" : undefined }}>
-			{isDisabled ? (
-				<input
-					type="number"
-					pattern="[0-9]{1}"
-					value={value}
-					onChange={(e) => {
-						onChange(index, e.target.value);
-					}}
-					onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
-						e.target.value = Math.max(0, parseInt(e.target.value, 10))
-							.toString()
-							.slice(0, 1);
-					}}
-					style={{
-						backgroundColor: isSelected ? "lightgrey" : undefined,
-					}}
-					onClick={() => {
-						onSelect(index);
-					}}
-				/>
-			) : (
-				<div
-					className="field"
-					onClick={() => {
-						onSelect(index);
-					}}
-					style={{
-						backgroundColor: isSelected ? "lightgrey" : undefined,
-					}}>
-					{value}
-				</div>
-			)}
-		</td>
-	);
-};
+}) => (
+	<td
+		key={index}
+		style={{ backgroundColor: isHighlighted ? "lightblue" : undefined }}>
+		{isDisabled ? (
+			<input
+				type="number"
+				pattern="[0-9]{1}"
+				value={value}
+				onChange={(e) => {
+					onChange(index, e.target.value);
+				}}
+				onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+					e.target.value = Math.max(0, parseInt(e.target.value, 10))
+						.toString()
+						.slice(0, 1);
+				}}
+				style={{
+					backgroundColor: isSelected ? "lightgrey" : undefined,
+				}}
+				onClick={() => {
+					onSelect(index);
+				}}
+			/>
+		) : (
+			<div
+				className="field"
+				onClick={() => {
+					onSelect(index);
+				}}
+				style={{
+					backgroundColor: isSelected ? "lightgrey" : undefined,
+				}}>
+				{value}
+			</div>
+		)}
+	</td>
+);
 
 type RowsProps = {
 	board: ("" | number | string)[];
@@ -231,28 +219,25 @@ const FinishedGameModal: React.FC<FinishedGameModalProps> = ({
 	isOpen,
 	onClick,
 	result,
-}) => {
-	return (
-		<>
-			{isOpen && (
-				<div className="modal">
-					<h2>Gratulacje! Rozwiązałeś sudoku</h2>
-					<p> Twój czas to: {formatTime(result)}</p>
-					<button className="new-game-btn" onClick={onClick}>
-						Nowa gra
-					</button>
-				</div>
-			)}
-		</>
-	);
-};
+}) => (
+	<>
+		{isOpen && (
+			<div className="modal">
+				<h2>Gratulacje! Rozwiązałeś sudoku</h2>
+				<p> Twój czas to: {formatTime(result)}</p>
+				<button className="new-game-btn" onClick={onClick}>
+					Nowa gra
+				</button>
+			</div>
+		)}
+	</>
+);
 
 export function App() {
-	const [board, setBoard] = useState(() => prepareInitialBoard(arr));
+	const [board, setBoard] = useState(() => prepareBoard(arr,'easy'));
 	const [paused, setPaused] = useState(false);
 	const [editableFields, setEditableFields] = useState(() => findEmpty(board));
 	const timer = useTimer();
-	type DifficultyLevel = "easy" | "medium" | "hard";
 	const [difficultyLevel, setDifficultyLevel] =
 		useState<DifficultyLevel>("easy");
 
@@ -268,20 +253,18 @@ export function App() {
 		const copy = [...board];
 		const parsedValue: number = parseInt(value);
 
-		isNaN(parsedValue) ? (copy[index] = "") : (copy[index] = parsedValue);
+		copy[index] = isNaN(parsedValue) ? "" : parsedValue;
 
 		setBoard(copy);
 	};
 
-	const handleNewGame = (): void => {
-		timer.reset();
-		handleStart();
+	const handleNewGame = ()=> {
 		if (difficultyLevel === "easy") {
-			changeDifficulty(board, arr, prepareInitialBoard);
+			changeDifficulty(board, arr,difficultyLevel, prepareBoard);
 		} else if (difficultyLevel === "medium") {
-			changeDifficulty(board, arr, changeBoardMedium);
+			changeDifficulty(board, arr,difficultyLevel,prepareBoard);
 		} else if (difficultyLevel === "hard") {
-			changeDifficulty(board, arr, changeBoardHard);
+			changeDifficulty(board, arr,difficultyLevel,prepareBoard);
 		}
 	};
 
@@ -298,10 +281,10 @@ export function App() {
 	const changeDifficulty = (
 		board: ("" | number)[],
 		arr: number[],
+		level,
 		func
 	): ("" | number)[] => {
-		let newBoard: number[] = [...arr];
-		let difficulty: ("" | number)[] = func(newBoard);
+		let difficulty: ("" | number)[] = func(arr,level);
 		setBoard(difficulty);
 		setEditableFields(findEmpty(difficulty));
 		timer.reset();
@@ -309,15 +292,15 @@ export function App() {
 		return board;
 	};
 
-	const handleChangeDifficulty = (difficulty) => {
+	const handleChangeDifficulty = (difficulty:DifficultyLevel) => {
 		if (difficulty === "medium") {
-			changeDifficulty(board, arr, changeBoardMedium);
+			changeDifficulty(board, arr,difficulty, prepareBoard);
 			setDifficultyLevel("medium");
 		} else if (difficulty === "hard") {
-			changeDifficulty(board, arr, changeBoardHard);
+			changeDifficulty(board, arr,difficulty, prepareBoard);
 			setDifficultyLevel("hard");
 		} else if (difficulty === "easy") {
-			changeDifficulty(board, arr, prepareInitialBoard);
+			changeDifficulty(board, arr,difficulty,prepareBoard);
 			setDifficultyLevel("easy");
 		}
 	};

@@ -8,6 +8,7 @@ const arr: number[] = [
 const board: number[] = [...arr];
 
 type Board = ("" | number)[];
+export type DifficultyLevel = "easy" | "medium" | "hard";
 
 export function isCellHighlighted(
 	index: number,
@@ -16,20 +17,26 @@ export function isCellHighlighted(
 	const lastRowStartIndex: number = 73;
 	for (let i: number = 0; i < lastRowStartIndex; i += 9) {
 		if (
-			colorColumns(i, index, selectedIndex) ||
-			colorRows(i, selectedIndex, index)
+			getFieldsInColumnsToColor(i, index, selectedIndex) ||
+			getFieldsInRowsToColor(i, selectedIndex, index)
 		) {
 			return true;
 		}
 	}
-	return [0, 27, 54].some((cell) => colorSquares(cell, selectedIndex, index));
+
+	return (
+		getFieldsInSquaresToColor(index) ===
+		getFieldsInSquaresToColor(selectedIndex)
+	);
 }
 
 function swapRows(
 	board: Board,
-	firstRowIndex: number,
-	secondRowIndex: number
+	chosenFirstRowIndex: number[],
+	chosenSecondRowIndex: number[]
 ): void {
+	let firstRowIndex = chosenFirstRowIndex[Math.floor(Math.random() * 2)];
+	let secondRowIndex = chosenSecondRowIndex[Math.floor(Math.random() * 2)];
 	for (let i: number = firstRowIndex; i < firstRowIndex + 9; i++) {
 		if (firstRowIndex === secondRowIndex) {
 			return;
@@ -47,9 +54,12 @@ function swapRows(
 
 function swapColumns(
 	board: Board,
-	firstColumnIndex: number,
-	secondColumnIndex: number
+	chosenFirstColumnIndex: number[],
+	chosenSecondColumnIndex: number[]
 ): void {
+	let firstColumnIndex = chosenFirstColumnIndex[Math.floor(Math.random() * 2)];
+	let secondColumnIndex =
+		chosenSecondColumnIndex[Math.floor(Math.random() * 2)];
 	for (let i: number = firstColumnIndex; i < firstColumnIndex + 73; i += 9) {
 		if (firstColumnIndex === secondColumnIndex) {
 			return;
@@ -66,75 +76,21 @@ function swapColumns(
 }
 
 function mixAllRows(board: Board): void {
-	// mixing first row of squares; indicating first and second possible index
-	const firstRowInd0: number[] = [0, 9];
-	const secondRowInd0: number[] = [9, 18];
-	let chosenFirstIndex: number = firstRowInd0[Math.floor(Math.random() * 2)];
-	let chosenSecondIndex: number = secondRowInd0[Math.floor(Math.random() * 2)];
-
-	// calling function to mix rows first time
-	swapRows(board, chosenFirstIndex, chosenSecondIndex);
-	//drawing first and second index second time
-	chosenFirstIndex = firstRowInd0[Math.floor(Math.random() * 2)];
-	chosenSecondIndex = secondRowInd0[Math.floor(Math.random() * 2)];
-	// calling function to mix rows first time
-	swapRows(board, chosenFirstIndex, chosenSecondIndex);
-
-	// mixing second row of squares
-	const firstRowInd27: number[] = [27, 36];
-	const secondRowInd27: number[] = [36, 45];
-	chosenFirstIndex = firstRowInd27[Math.floor(Math.random() * 2)];
-	chosenSecondIndex = secondRowInd27[Math.floor(Math.random() * 2)];
-	swapRows(board, chosenFirstIndex, chosenSecondIndex);
-	chosenFirstIndex = firstRowInd27[Math.floor(Math.random() * 2)];
-	chosenSecondIndex = secondRowInd27[Math.floor(Math.random() * 2)];
-	swapRows(board, chosenFirstIndex, chosenSecondIndex);
-
-	// mixing the last row of squares
-	const firstRowInd54: number[] = [54, 63];
-	const secondRowInd54: number[] = [63, 72];
-	chosenFirstIndex = firstRowInd54[Math.floor(Math.random() * 2)];
-	chosenSecondIndex = secondRowInd54[Math.floor(Math.random() * 2)];
-	swapRows(board, chosenFirstIndex, chosenSecondIndex);
-	chosenFirstIndex = firstRowInd54[Math.floor(Math.random() * 2)];
-	chosenSecondIndex = secondRowInd54[Math.floor(Math.random() * 2)];
-	swapRows(board, chosenFirstIndex, chosenSecondIndex);
+	swapRows(board, [0, 9], [9, 18]);
+	swapRows(board, [0, 9], [9, 18]);
+	swapRows(board, [27, 36], [36, 45]);
+	swapRows(board, [27, 36], [36, 45]);
+	swapRows(board, [54, 63], [63, 72]);
+	swapRows(board, [54, 63], [63, 72]);
 }
 
 function mixAllColumns(board: Board): void {
-	// mixing first column of squares, indicating possible first and second index
-	const firstColInd0: number[] = [0, 1];
-	const secondColInd0: number[] = [1, 2];
-	let chosenFirstColIndex: number = firstColInd0[Math.floor(Math.random() * 2)];
-	let chosenSecondColIndex: number =
-		secondColInd0[Math.floor(Math.random() * 2)];
-
-	// calling function to mix columns first time
-	swapColumns(board, chosenFirstColIndex, chosenSecondColIndex);
-	//drawing first and second index second time
-	chosenFirstColIndex = firstColInd0[Math.floor(Math.random() * 2)];
-	chosenSecondColIndex = secondColInd0[Math.floor(Math.random() * 2)];
-	// calling function to mix columns first time
-	swapColumns(board, chosenFirstColIndex, chosenSecondColIndex);
-	// mixing second column of squares
-	const firstColInd3: number[] = [3, 4];
-	const secondColInd3: number[] = [4, 5];
-	chosenFirstColIndex = firstColInd3[Math.floor(Math.random() * 2)];
-	chosenSecondColIndex = secondColInd3[Math.floor(Math.random() * 2)];
-	swapColumns(board, chosenFirstColIndex, chosenSecondColIndex);
-	chosenFirstColIndex = firstColInd3[Math.floor(Math.random() * 2)];
-	chosenSecondColIndex = secondColInd3[Math.floor(Math.random() * 2)];
-	swapColumns(board, chosenFirstColIndex, chosenSecondColIndex);
-
-	// mixing third column of squares
-	const firstColInd6: number[] = [6, 7];
-	const secondColInd6: number[] = [7, 8];
-	chosenFirstColIndex = firstColInd6[Math.floor(Math.random() * 2)];
-	chosenSecondColIndex = secondColInd6[Math.floor(Math.random() * 2)];
-	swapColumns(board, chosenFirstColIndex, chosenSecondColIndex);
-	chosenFirstColIndex = firstColInd6[Math.floor(Math.random() * 2)];
-	chosenSecondColIndex = secondColInd6[Math.floor(Math.random() * 2)];
-	swapColumns(board, chosenFirstColIndex, chosenSecondColIndex);
+	swapColumns(board, [0, 1], [1, 2]);
+	swapColumns(board, [0, 1], [1, 2]);
+	swapColumns(board, [3, 4], [4, 5]);
+	swapColumns(board, [3, 4], [4, 5]);
+	swapColumns(board, [6, 7], [7, 8]);
+	swapColumns(board, [6, 7], [7, 8]);
 }
 
 function clearRandomFields(board: Board, quantity: number): void {
@@ -149,25 +105,17 @@ function clearRandomFields(board: Board, quantity: number): void {
 	}
 }
 
-export function prepareInitialBoard(board: Board): Board {
-	let boardCopy = [...board];
-	mixAllRows(boardCopy);
-	mixAllColumns(boardCopy);
-	clearRandomFields(boardCopy, 3);
-	return boardCopy;
-}
+const clearedFieldsForDifficulty: Record<DifficultyLevel, number> = {
+	easy: 1,
+	medium: 3,
+	hard: 4,
+};
 
-export function changeBoardMedium(board: Board) {
+export function prepareBoard(array: Board, difficulty: string) {
+	let board = [...array];
 	mixAllRows(board);
 	mixAllColumns(board);
-	clearRandomFields(board, 6);
-	return board;
-}
-
-export function changeBoardHard(board: Board) {
-	mixAllRows(board);
-	mixAllColumns(board);
-	clearRandomFields(board, 56);
+	clearRandomFields(board, clearedFieldsForDifficulty[difficulty]);
 	return board;
 }
 
@@ -207,15 +155,11 @@ function isColumnCorrectlyFilled(board: Board, column: number): boolean {
 	return true;
 }
 
-// Kuba, can you check if now this is correct (comparing to the previous version)?
 function isSquareCorrectlyCompleted(board: Board, index: number): boolean {
 	let usedNumbers: (number | string)[] = [];
-	for (let i: number = index; i < index + 19; i += 9) {
-		for (let j: number = i; j < i + 3; j += i + 1) {
-			if (board[j] === "") {
-				return false;
-			}
-			if (usedNumbers.includes(board[j])) {
+	for (let i: number = index; i <= index + 18; i += 9) {
+		for (let j: number = i; j < i + 3; j += j + 1) {
+			if (board[j] === "" || usedNumbers.includes(board[j])) {
 				return false;
 			} else {
 				usedNumbers.push(board[j]);
@@ -252,15 +196,15 @@ export function isBoardCorrectlyCompleted(board: Board): boolean {
 }
 
 export function formatTime(time: number): string {
-	const hour: number = 60;
-	const getSeconds: string = `0${time % hour}`.slice(-2);
-	const minutes: number = Math.floor(time / hour);
-	const getMinutes: string = `0${minutes % hour}`.slice(-2);
-	const getHours: string = `0${Math.floor(time / 3600)}`.slice(-2);
-	return `${getHours}:${getMinutes}:${getSeconds}`;
+	const hour = 60;
+	const seconds = `0${time % hour}`.slice(-2);
+	const minute = Math.floor(time / hour);
+	const minutes = `0${minute % hour}`.slice(-2);
+	const hours = `0${Math.floor(time / 3600)}`.slice(-2);
+	return `${hours}:${minutes}:${seconds}`;
 }
 
-export function colorRows(
+function getFieldsInRowsToColor(
 	firstCell: number,
 	index: number,
 	field: number
@@ -277,7 +221,7 @@ export function colorRows(
 	}
 }
 
-export function colorColumns(
+function getFieldsInColumnsToColor(
 	i: number,
 	j: number,
 	selectedIndex: number
@@ -287,94 +231,11 @@ export function colorColumns(
 	}
 }
 
-export function colorSquares(
-	index: number,
-	selectedIndex: number,
-	j: number
-): boolean {
-	for (let i: number = index; i < index + 7; i += 3) {
-		if (
-			(selectedIndex === i && j < i + 21 && selectedIndex + 10 === j) ||
-			(selectedIndex === i && j < i + 21 && selectedIndex + 20 === j) ||
-			(selectedIndex === i && j < i + 21 && selectedIndex + 11 === j) ||
-			(selectedIndex === i && j < i + 21 && selectedIndex + 19 === j)
-		) {
-			return true;
-		}
-
-		if (
-			(selectedIndex === i + 1 && j < i + 21 && selectedIndex + 8 === j) ||
-			(selectedIndex === i + 1 && j < i + 21 && selectedIndex + 17 === j) ||
-			(selectedIndex === i + 1 && j < i + 21 && selectedIndex + 10 === j) ||
-			(selectedIndex === i + 1 && j < i + 21 && selectedIndex + 19 === j)
-		) {
-			return true;
-		}
-
-		if (
-			(selectedIndex === i + 2 && j < i + 21 && selectedIndex + 7 === j) ||
-			(selectedIndex === i + 2 && j < i + 21 && selectedIndex + 16 === j) ||
-			(selectedIndex === i + 2 && j < i + 21 && selectedIndex + 8 === j) ||
-			(selectedIndex === i + 2 && j < i + 21 && selectedIndex + 17 === j)
-		) {
-			return true;
-		}
-
-		if (
-			(selectedIndex === i + 10 && j < i + 21 && selectedIndex - 10 === j) ||
-			(selectedIndex === i + 10 && j < i + 21 && selectedIndex + 10 === j) ||
-			(selectedIndex === i + 10 && j < i + 21 && selectedIndex + 8 === j) ||
-			(selectedIndex === i + 10 && j < i + 21 && selectedIndex - 8 === j)
-		) {
-			return true;
-		}
-
-		if (
-			(selectedIndex === i + 9 && j < i + 21 && selectedIndex + 10 === j) ||
-			(selectedIndex === i + 9 && j < i + 21 && selectedIndex + 11 === j) ||
-			(selectedIndex === i + 9 && j < i + 21 && selectedIndex - 8 === j) ||
-			(selectedIndex === i + 9 && j < i + 21 && selectedIndex - 7 === j)
-		) {
-			return true;
-		}
-
-		if (
-			(selectedIndex === i + 11 && j < i + 21 && selectedIndex - 10 === j) ||
-			(selectedIndex === i + 11 && j < i + 21 && selectedIndex - 11 === j) ||
-			(selectedIndex === i + 11 && j < i + 21 && selectedIndex + 8 === j) ||
-			(selectedIndex === i + 11 && j < i + 21 && selectedIndex + 7 === j)
-		) {
-			return true;
-		}
-
-		if (
-			(selectedIndex === i + 18 && j < i + 21 && selectedIndex - 8 === j) ||
-			(selectedIndex === i + 18 && j < i + 21 && selectedIndex - 16 === j) ||
-			(selectedIndex === i + 18 && j < i + 21 && selectedIndex - 7 === j) ||
-			(selectedIndex === i + 18 && j < i + 21 && selectedIndex - 17 === j)
-		) {
-			return true;
-		}
-
-		if (
-			(selectedIndex === i + 19 && j < i + 21 && selectedIndex - 10 === j) ||
-			(selectedIndex === i + 19 && j < i + 21 && selectedIndex - 19 === j) ||
-			(selectedIndex === i + 19 && j < i + 21 && selectedIndex - 8 === j) ||
-			(selectedIndex === i + 19 && j < i + 21 && selectedIndex - 17 === j)
-		) {
-			return true;
-		}
-
-		if (
-			(selectedIndex === i + 20 && j < i + 21 && selectedIndex - 10 === j) ||
-			(selectedIndex === i + 20 && j < i + 21 && selectedIndex - 20 === j) ||
-			(selectedIndex === i + 20 && j < i + 21 && selectedIndex - 11 === j) ||
-			(selectedIndex === i + 20 && j < i + 21 && selectedIndex - 19 === j)
-		) {
-			return true;
-		}
-	}
-}
+const getFieldsInSquaresToColor = (i) => {
+	const squareCol = Math.floor((i % 9) / 3);
+	const squareRow = Math.floor(i / 27);
+	return squareCol + squareRow * 3;
+};
 
 export function findEmpty(board: Board): number[] {
 	let indices: number[] = [];
