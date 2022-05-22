@@ -1,13 +1,11 @@
-const arr: number[] = [
+export const exampleSudokuSolution: number[] = [
 	4, 9, 8, 2, 6, 3, 1, 5, 7, 1, 3, 6, 5, 7, 8, 2, 9, 4, 5, 7, 2, 4, 9, 1, 6, 8,
 	3, 8, 1, 9, 3, 4, 2, 7, 6, 5, 6, 5, 3, 8, 1, 7, 9, 4, 2, 2, 4, 7, 6, 5, 9, 8,
 	3, 1, 7, 6, 1, 9, 3, 5, 4, 2, 8, 9, 8, 5, 1, 2, 4, 3, 7, 6, 3, 2, 4, 7, 8, 6,
 	5, 1, 9,
 ];
 
-const board: number[] = [...arr];
-
-type Board = ("" | number)[];
+export type Board = ("" | number)[];
 export type DifficultyLevel = "easy" | "medium" | "hard";
 
 export function isCellHighlighted(
@@ -17,8 +15,8 @@ export function isCellHighlighted(
 	const lastRowStartIndex: number = 73;
 	for (let i: number = 0; i < lastRowStartIndex; i += 9) {
 		if (
-			getFieldsInColumnsToColor(i, index, selectedIndex) ||
-			getFieldsInRowsToColor(i, selectedIndex, index)
+			getFieldInColumnsToColor(i, index, selectedIndex) ||
+			getFieldInRowsToColor(i, selectedIndex, index)
 		) {
 			return true;
 		}
@@ -30,13 +28,16 @@ export function isCellHighlighted(
 	);
 }
 
+const selectRandomIndex = () => Math.floor(Math.random() * 2);
+const selectRandomIndexToBeCleared = () => Math.floor(Math.random() * 80);
+
 function swapRows(
 	board: Board,
-	chosenFirstRowIndex: number[],
-	chosenSecondRowIndex: number[]
+	firstRowIndices: number[],
+	secondRowIndices: number[]
 ): void {
-	let firstRowIndex = chosenFirstRowIndex[Math.floor(Math.random() * 2)];
-	let secondRowIndex = chosenSecondRowIndex[Math.floor(Math.random() * 2)];
+	let firstRowIndex = firstRowIndices[selectRandomIndex()];
+	let secondRowIndex = secondRowIndices[selectRandomIndex()];
 	for (let i: number = firstRowIndex; i < firstRowIndex + 9; i++) {
 		if (firstRowIndex === secondRowIndex) {
 			return;
@@ -54,12 +55,11 @@ function swapRows(
 
 function swapColumns(
 	board: Board,
-	chosenFirstColumnIndex: number[],
-	chosenSecondColumnIndex: number[]
+	firstColumnIndices: number[],
+	secondColumnIndices: number[]
 ): void {
-	let firstColumnIndex = chosenFirstColumnIndex[Math.floor(Math.random() * 2)];
-	let secondColumnIndex =
-		chosenSecondColumnIndex[Math.floor(Math.random() * 2)];
+	let firstColumnIndex = firstColumnIndices[selectRandomIndex()];
+	let secondColumnIndex = secondColumnIndices[selectRandomIndex()];
 	for (let i: number = firstColumnIndex; i < firstColumnIndex + 73; i += 9) {
 		if (firstColumnIndex === secondColumnIndex) {
 			return;
@@ -96,7 +96,7 @@ function mixAllColumns(board: Board): void {
 function clearRandomFields(board: Board, quantity: number): void {
 	let indexesToBeCleared: number[] = [];
 	for (let i: number = 0; i < quantity; i++) {
-		let randomIndex: number = Math.floor(Math.random() * 80);
+		let randomIndex: number = selectRandomIndexToBeCleared();
 		indexesToBeCleared.push(randomIndex);
 	}
 
@@ -204,7 +204,7 @@ export function formatTime(time: number): string {
 	return `${hours}:${minutes}:${seconds}`;
 }
 
-function getFieldsInRowsToColor(
+function getFieldInRowsToColor(
 	firstCell: number,
 	index: number,
 	field: number
@@ -221,7 +221,7 @@ function getFieldsInRowsToColor(
 	}
 }
 
-function getFieldsInColumnsToColor(
+function getFieldInColumnsToColor(
 	i: number,
 	j: number,
 	selectedIndex: number

@@ -7,74 +7,12 @@ import {
 	findEmpty,
 	formatTime,
 	isCellHighlighted,
-	DifficultyLevel
+	DifficultyLevel,
+	Board,
+	exampleSudokuSolution,
 } from "./functions";
 import { useTimer } from "./hooks";
-
-const arr: number[] = [
-	4, 9, 8, 2, 6, 3, 1, 5, 7, 1, 3, 6, 5, 7, 8, 2, 9, 4, 5, 7, 2, 4, 9, 1, 6, 8,
-	3, 8, 1, 9, 3, 4, 2, 7, 6, 5, 6, 5, 3, 8, 1, 7, 9, 4, 2, 2, 4, 7, 6, 5, 9, 8,
-	3, 1, 7, 6, 1, 9, 3, 5, 4, 2, 8, 9, 8, 5, 1, 2, 4, 3, 7, 6, 3, 2, 4, 7, 8, 6,
-	5, 1, 9,
-];
-
-const StopIcon: React.FC = () => (
-	<svg
-		xmlns="http://www.w3.org/2000/svg"
-		className="h-6 w-6"
-		fill="none"
-		viewBox="0 0 24 24"
-		stroke="currentColor">
-		<path
-			stroke-linecap="round"
-			stroke-linejoin="round"
-			stroke-width="2"
-			d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"
-		/>
-	</svg>
-);
-
-const StartIcon: React.FC = () => (
-	<svg
-		xmlns="http://www.w3.org/2000/svg"
-		className="h-6 w-6"
-		fill="none"
-		viewBox="0 0 24 24"
-		stroke="currentColor"
-		stroke-width="2">
-		<path
-			stroke-linecap="round"
-			stroke-linejoin="round"
-			d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-		/>
-		<path
-			stroke-linecap="round"
-			stroke-linejoin="round"
-			d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-		/>
-	</svg>
-);
-
-const PlayIconOnModal: React.FC = () => (
-	<svg
-		xmlns="http://www.w3.org/2000/svg"
-		className="h-6 w-6 modalIcon"
-		fill="none"
-		viewBox="0 0 24 24"
-		stroke="currentColor"
-		strokeWidth={2}>
-		<path
-			strokeLinecap="round"
-			strokeLinejoin="round"
-			d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-		/>
-		<path
-			strokeLinecap="round"
-			strokeLinejoin="round"
-			d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-		/>
-	</svg>
-);
+import { StopIcon, PlayIconOnModal, StartIcon } from "./icons";
 
 type PauseModalProps = {
 	isStopped: boolean;
@@ -121,11 +59,10 @@ const Stopwatch: React.FC<StopwatchProps> = ({
 	</div>
 );
 type TdProps = {
-	key?: number;
 	index: number;
 	isHighlighted: boolean;
 	isDisabled: boolean;
-	value: "" | number | string;
+	value: number | string;
 	onSelect: (index: number) => void;
 	onChange: (index: number, value: string) => void;
 	isSelected: boolean;
@@ -152,7 +89,7 @@ const Td: React.FC<TdProps> = ({
 					onChange(index, e.target.value);
 				}}
 				onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
-					e.target.value = Math.max(0, parseInt(e.target.value, 10))
+					e.target.value = Math.max(1, parseInt(e.target.value, 10))
 						.toString()
 						.slice(0, 1);
 				}}
@@ -179,9 +116,9 @@ const Td: React.FC<TdProps> = ({
 );
 
 type RowsProps = {
-	board: ("" | number | string)[];
+	board: (number | string)[];
 	onChange: (index: number, value: string) => void;
-	isDisabled: (parameter: number) => boolean;
+	isDisabled: (index: number) => boolean;
 };
 
 const Rows: React.FC<RowsProps> = ({ board, onChange, isDisabled }) => {
@@ -234,20 +171,24 @@ const FinishedGameModal: React.FC<FinishedGameModalProps> = ({
 );
 
 export function App() {
-	const [board, setBoard] = useState(() => prepareBoard(arr,'easy'));
+	const [board, setBoard] = useState(() =>
+		prepareBoard(exampleSudokuSolution, "easy")
+	);
 	const [paused, setPaused] = useState(false);
 	const [editableFields, setEditableFields] = useState(() => findEmpty(board));
 	const timer = useTimer();
 	const [difficultyLevel, setDifficultyLevel] =
 		useState<DifficultyLevel>("easy");
 
+	const boardCorrectlyCompleted = isBoardCorrectlyCompleted(board);
+
 	useEffect(() => {
-		if (isBoardCorrectlyCompleted(board)) {
+		if (boardCorrectlyCompleted) {
 			timer.pauseTimer();
 		}
 	}, [board]);
 
-	const isDisabled = (value: number): boolean => editableFields.includes(value);
+	const isDisabled = (index: number): boolean => editableFields.includes(index);
 
 	const handleChange = (index: number, value: string): void => {
 		const copy = [...board];
@@ -258,15 +199,8 @@ export function App() {
 		setBoard(copy);
 	};
 
-	const handleNewGame = ()=> {
-		if (difficultyLevel === "easy") {
-			changeDifficulty(board, arr,difficultyLevel, prepareBoard);
-		} else if (difficultyLevel === "medium") {
-			changeDifficulty(board, arr,difficultyLevel,prepareBoard);
-		} else if (difficultyLevel === "hard") {
-			changeDifficulty(board, arr,difficultyLevel,prepareBoard);
-		}
-	};
+	const handleNewGame = () =>
+		changeDifficulty(board, exampleSudokuSolution, difficultyLevel);
 
 	const handleStart = (): void => {
 		timer.startTimer();
@@ -279,12 +213,14 @@ export function App() {
 	};
 
 	const changeDifficulty = (
-		board: ("" | number)[],
-		arr: number[],
-		level,
-		func
+		board: Board,
+		exampleSudokuSolution: number[],
+		level
 	): ("" | number)[] => {
-		let difficulty: ("" | number)[] = func(arr,level);
+		let difficulty: ("" | number)[] = prepareBoard(
+			exampleSudokuSolution,
+			level
+		);
 		setBoard(difficulty);
 		setEditableFields(findEmpty(difficulty));
 		timer.reset();
@@ -292,26 +228,15 @@ export function App() {
 		return board;
 	};
 
-	const handleChangeDifficulty = (difficulty:DifficultyLevel) => {
-		if (difficulty === "medium") {
-			changeDifficulty(board, arr,difficulty, prepareBoard);
-			setDifficultyLevel("medium");
-		} else if (difficulty === "hard") {
-			changeDifficulty(board, arr,difficulty, prepareBoard);
-			setDifficultyLevel("hard");
-		} else if (difficulty === "easy") {
-			changeDifficulty(board, arr,difficulty,prepareBoard);
-			setDifficultyLevel("easy");
-		}
+	const handleChangeDifficulty = (difficulty: DifficultyLevel) => {
+		changeDifficulty(board, exampleSudokuSolution, difficulty);
+		setDifficultyLevel(difficulty);
 	};
 
 	return (
 		<>
 			<div className="container">
-				<div
-					className={
-						isBoardCorrectlyCompleted(board) ? "overlay" : undefined
-					}></div>
+				<div className={boardCorrectlyCompleted ? "overlay" : undefined}></div>
 				<h1>Sudoku</h1>
 				<div className="difficulty-timer-area">
 					<div className="difficulty-level">
@@ -346,7 +271,7 @@ export function App() {
 				</div>
 			</div>
 			<FinishedGameModal
-				isOpen={isBoardCorrectlyCompleted(board)}
+				isOpen={boardCorrectlyCompleted}
 				onClick={handleNewGame}
 				result={timer.time}
 			/>
