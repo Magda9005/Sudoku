@@ -10,7 +10,7 @@ import {
 	DifficultyLevel,
 	Board,
 	exampleSudokuSolution,
-} from "./functions";
+} from "./logic/functions";
 import { useTimer } from "./hooks/useTimer";
 import { StopIcon, PlayIcon, StartIcon } from "./components/icons";
 
