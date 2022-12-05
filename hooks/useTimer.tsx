@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect,useMemo } from 'react';
 
 export const useTimer = () => {
   const [time, setTime] = useState(0);
@@ -28,5 +28,7 @@ export const useTimer = () => {
     setTime(0);
   };
 
-  return {time,reset,startTimer,pauseTimer,isActive}
+  return useMemo(()=>{
+    return {time,reset,startTimer,pauseTimer,isActive}}
+    ,[time,reset,startTimer,pauseTimer,isActive])
 };

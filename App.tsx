@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect,useMemo} from "react";
 import { NumberLiteralType } from "typescript";
 import {
 	prepareBoard,
@@ -11,25 +11,22 @@ import {
 	Board,
 	exampleSudokuSolution,
 } from "./functions";
-import { useTimer } from "./hooks";
-import { StopIcon, PlayIconOnModal, StartIcon } from "./icons";
+import { useTimer } from "./hooks/useTimer";
+import { StopIcon, PlayIcon, StartIcon } from "./components/icons";
 
 type PauseModalProps = {
-	isStopped: boolean;
 	onStart: () => void;
 };
 
-const PauseModal: React.FC<PauseModalProps> = ({ isStopped, onStart }) => (
-	<>
-		{isStopped && (
+const PauseModal: React.FC<PauseModalProps> = ({  onStart }) => (
+	
 			<div className="pause-modal">
 				<button onClick={onStart} className="play-button">
-					<PlayIconOnModal />
+					<PlayIcon />
 				</button>
 			</div>
-		)}
-	</>
-);
+		)
+;
 
 type StopwatchProps = {
 	onPause: () => void;
@@ -61,7 +58,7 @@ const Stopwatch: React.FC<StopwatchProps> = ({
 type TdProps = {
 	index: number;
 	isHighlighted: boolean;
-	isDisabled: boolean;
+	isCellEditable: boolean;
 	value: number | string;
 	onSelect: (index: number) => void;
 	onChange: (index: number, value: string) => void;
@@ -71,7 +68,7 @@ type TdProps = {
 const Td: React.FC<TdProps> = ({
 	index,
 	isHighlighted,
-	isDisabled,
+	isCellEditable,
 	value,
 	onSelect,
 	onChange,
@@ -80,7 +77,7 @@ const Td: React.FC<TdProps> = ({
 	<td
 		key={index}
 		style={{ backgroundColor: isHighlighted ? "lightblue" : undefined }}>
-		{isDisabled ? (
+		{isCellEditable ? (
 			<input
 				type="number"
 				pattern="[0-9]{1}"
@@ -118,10 +115,10 @@ const Td: React.FC<TdProps> = ({
 type RowsProps = {
 	board: (number | string)[];
 	onChange: (index: number, value: string) => void;
-	isDisabled: (index: number) => boolean;
+	isCellEditable: (index: number) => boolean;
 };
 
-const Rows: React.FC<RowsProps> = ({ board, onChange, isDisabled }) => {
+const Rows: React.FC<RowsProps> = ({ board, onChange, isCellEditable }) => {
 	const [selectedIndex, setSelectedIndex] = useState(undefined);
 
 	const rows: JSX.Element[] = [];
@@ -133,7 +130,7 @@ const Rows: React.FC<RowsProps> = ({ board, onChange, isDisabled }) => {
 					key={j}
 					index={j}
 					isHighlighted={isCellHighlighted(j, selectedIndex)}
-					isDisabled={isDisabled(j)}
+					isCellEditable={isCellEditable(j)}
 					onSelect={setSelectedIndex}
 					onChange={onChange}
 					isSelected={board[j] === board[selectedIndex]}
@@ -147,18 +144,15 @@ const Rows: React.FC<RowsProps> = ({ board, onChange, isDisabled }) => {
 };
 
 type FinishedGameModalProps = {
-	isOpen: boolean;
 	onClick: () => void;
 	result: number;
 };
 
 const FinishedGameModal: React.FC<FinishedGameModalProps> = ({
-	isOpen,
 	onClick,
 	result,
 }) => (
-	<>
-		{isOpen && (
+	(
 			<div className="modal">
 				<h2>Gratulacje! Rozwiązałeś sudoku</h2>
 				<p> Twój czas to: {formatTime(result)}</p>
@@ -166,8 +160,7 @@ const FinishedGameModal: React.FC<FinishedGameModalProps> = ({
 					Nowa gra
 				</button>
 			</div>
-		)}
-	</>
+		)
 );
 
 export function App() {
@@ -180,15 +173,18 @@ export function App() {
 	const [difficultyLevel, setDifficultyLevel] =
 		useState<DifficultyLevel>("easy");
 
-	const boardCorrectlyCompleted = isBoardCorrectlyCompleted(board);
+	const boardCompleted =useMemo(
+		()=>isBoardCorrectlyCompleted(board),
+		[board]
+	) ;
 
 	useEffect(() => {
-		if (boardCorrectlyCompleted) {
+		if (boardCompleted) {
 			timer.pauseTimer();
 		}
 	}, [board]);
 
-	const isDisabled = (index: number): boolean => editableFields.includes(index);
+	const isCellEditable = (index: number): boolean => editableFields.includes(index);
 
 	const handleChange = (index: number, value: string): void => {
 		const copy = [...board];
@@ -197,6 +193,22 @@ export function App() {
 		copy[index] = isNaN(parsedValue) ? "" : parsedValue;
 
 		setBoard(copy);
+	};
+
+	const changeDifficulty = (
+		board: Board,
+		exampleSudokuSolution: number[],
+		level
+	): ("" | number)[] => {
+		let boardWithChangedDifficultyLevel: ("" | number)[] = prepareBoard(
+			exampleSudokuSolution,
+			level
+		);
+		setBoard(boardWithChangedDifficultyLevel);
+		setEditableFields(findEmpty(boardWithChangedDifficultyLevel));
+		timer.reset();
+		handleStart();
+		return board;
 	};
 
 	const handleNewGame = () =>
@@ -212,21 +224,7 @@ export function App() {
 		setPaused(true);
 	};
 
-	const changeDifficulty = (
-		board: Board,
-		exampleSudokuSolution: number[],
-		level
-	): ("" | number)[] => {
-		let difficulty: ("" | number)[] = prepareBoard(
-			exampleSudokuSolution,
-			level
-		);
-		setBoard(difficulty);
-		setEditableFields(findEmpty(difficulty));
-		timer.reset();
-		handleStart();
-		return board;
-	};
+
 
 	const handleChangeDifficulty = (difficulty: DifficultyLevel) => {
 		changeDifficulty(board, exampleSudokuSolution, difficulty);
@@ -236,8 +234,7 @@ export function App() {
 	return (
 		<>
 			<div className="container">
-				<div className={boardCorrectlyCompleted ? "overlay" : undefined}></div>
-				<h1>Sudoku</h1>
+				<h1 className="header">Sudoku</h1>
 				<div className="difficulty-timer-area">
 					<div className="difficulty-level">
 						<label>Poziom trudności: </label>
@@ -258,23 +255,23 @@ export function App() {
 					/>
 				</div>
 				<div className="board">
-					<PauseModal isStopped={paused} onStart={handleStart} />
+				<div className={boardCompleted ? "overlay" : undefined}></div>
+					{paused && <PauseModal onStart={handleStart} />}
 					<table>
 						<tbody>
 							<Rows
 								board={board}
 								onChange={handleChange}
-								isDisabled={isDisabled}
+								isCellEditable={isCellEditable}
 							/>
 						</tbody>
 					</table>
 				</div>
 			</div>
-			<FinishedGameModal
-				isOpen={boardCorrectlyCompleted}
+		{boardCompleted && <FinishedGameModal
 				onClick={handleNewGame}
 				result={timer.time}
-			/>
+			/> }	
 		</>
 	);
 }

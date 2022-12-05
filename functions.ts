@@ -28,8 +28,10 @@ export function isCellHighlighted(
 	);
 }
 
-const selectRandomIndex = () => Math.floor(Math.random() * 2);
-const selectRandomIndexToBeCleared = () => Math.floor(Math.random() * 80);
+const random=(min, max) => Math.floor(Math.random() * (max - min)) + min;
+
+const selectRandomIndex =()=> random(0,2);
+const selectRandomIndexToBeCleared =()=> random(0,81);
 
 function swapRows(
 	board: Board,
@@ -52,6 +54,7 @@ function swapRows(
 		}
 	}
 }
+
 
 function swapColumns(
 	board: Board,
@@ -219,6 +222,7 @@ function getFieldInRowsToColor(
 			}
 		}
 	}
+return false;
 }
 
 function getFieldInColumnsToColor(
