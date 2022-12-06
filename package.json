@@ -19,13 +19,12 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.29.4",
     "prettier": "^2.6.0",
-    "sass": "^1.49.9"
+    "sass": "^1.56.1"
   },
   "scripts": {
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "format": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc",
-    "test":"jest"
-    
+    "test": "jest"
   }
 }
