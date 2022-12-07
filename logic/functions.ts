@@ -110,7 +110,7 @@ export function prepareBoard(array: Board, difficulty: string) {
   return board;
 }
 
-function isRowCorrectlyFilled(board: Board, row: number): boolean {
+export function isRowCorrectlyFilled(board: Board, row: number): boolean {
   let usedNumbers: (number | "")[] = [];
 
   for (let i: number = row; i < row + 9; i++) {
