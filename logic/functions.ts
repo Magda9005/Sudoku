@@ -26,7 +26,7 @@ const random = (min:number, max:number):number => Math.floor(Math.random() * (ma
 const selectRandomIndex = () => random(0, 2);
 const selectRandomIndexToBeCleared = () => random(0, 81);
 
-function swapRows(
+export function swapRows(
   board: Board,
   firstRowIndices: number[],
   secondRowIndices: number[]
@@ -46,9 +46,10 @@ function swapRows(
       board[i + 18] = x;
     }
   }
+
 }
 
-function swapColumns(
+export function swapColumns(
   board: Board,
   firstColumnIndices: number[],
   secondColumnIndices: number[]
@@ -128,7 +129,7 @@ export function isRowCorrectlyFilled(board: Board, row: number): boolean {
   return true;
 }
 
-function isColumnCorrectlyFilled(board: Board, column: number): boolean {
+export function isColumnCorrectlyFilled(board: Board, column: number): boolean {
   let usedNumbers: ("" | number)[] = [];
 
   for (let i: number = column; i < column + 73; i += 9) {
