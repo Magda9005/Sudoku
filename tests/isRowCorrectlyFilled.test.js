@@ -1,18 +1,18 @@
 import { isRowCorrectlyFilled } from '../logic/functions';
-import { board } from './exampleOfCorrectlyFilledBoard';
+import { solvedBoard } from './fixtures/solvedBoard';
 
 
 describe("check row function", () => {
     it.each([
-        [board, 0],
-        [board, 9],
-        [board, 18],
-        [board, 27],
-        [board, 36],
-        [board, 45],
-        [board, 54],
-        [board, 63],
-        [board, 72]
+        [solvedBoard, 0],
+        [solvedBoard, 9],
+        [solvedBoard, 18],
+        [solvedBoard, 27],
+        [solvedBoard, 36],
+        [solvedBoard, 45],
+        [solvedBoard, 54],
+        [solvedBoard, 63],
+        [solvedBoard, 72]
 
     ])(
         `should return true when input is: %o,%i`,

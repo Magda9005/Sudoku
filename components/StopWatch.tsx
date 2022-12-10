@@ -20,7 +20,6 @@ const Stopwatch: React.FC<StopwatchProps> = ({
     {formatTime(time)}
     {isActive ? (
       <button className="stopBtn" onClick={onPause}>
-        {" "}
         <StopIcon />
       </button>
     ) : (

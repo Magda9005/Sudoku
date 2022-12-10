@@ -1,5 +1,5 @@
 import {Board} from '../constants and types/types';
-import {clearedFieldsForDifficulty} from '../constants and types/constants';
+import {numberOfClearedFieldsForDifficulty} from '../constants and types/constants';
 
 export function isCellHighlighted(
   index: number,
@@ -107,7 +107,7 @@ export function prepareBoard(array: Board, difficulty: string) {
   let board = [...array];
   mixAllRows(board);
   mixAllColumns(board);
-  clearRandomFields(board, clearedFieldsForDifficulty[difficulty]);
+  clearRandomFields(board, numberOfClearedFieldsForDifficulty[difficulty]);
   return board;
 }
 

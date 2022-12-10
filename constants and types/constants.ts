@@ -7,7 +7,7 @@ export const exampleSudokuSolution: number[] = [
     5, 1, 9,
   ];
 
-export const clearedFieldsForDifficulty: Record<DifficultyLevel, number> = {
+export const numberOfClearedFieldsForDifficulty: Record<DifficultyLevel, number> = {
   easy: 1,
   medium: 3,
   hard: 4,

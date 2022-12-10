@@ -1,18 +1,18 @@
 import { isColumnCorrectlyFilled } from '../logic/functions';
-import { board } from './exampleOfCorrectlyFilledBoard';
+import { solvedBoard } from './fixtures/solvedBoard';
 
 
 describe("check column function", () => {
     it.each([
-        [board, 0],
-        [board, 1],
-        [board, 2],
-        [board, 3],
-        [board, 4],
-        [board, 5],
-        [board, 6],
-        [board, 7],
-        [board, 8]
+        [solvedBoard, 0],
+        [solvedBoard, 1],
+        [solvedBoard, 2],
+        [solvedBoard, 3],
+        [solvedBoard, 4],
+        [solvedBoard, 5],
+        [solvedBoard, 6],
+        [solvedBoard, 7],
+        [solvedBoard, 8]
 
     ])(
         `should return true when input is: %o,%i`,

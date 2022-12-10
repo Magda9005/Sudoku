@@ -1,4 +1,4 @@
-export const board=[
+export const solvedBoard=[
         4,9, 8, 2, 6, 3,1, 5, 7,
         1, 3,6,5,7,8,2,9,4,
         5,7,2,4,9,1,6,8,3,

@@ -1,5 +1,7 @@
 import React from "react";
 import "./BoardField.scss";
+import EditableField from "./EditableField";
+import PrefilledField from "./PrefilledFilled";
 
 type BoardFieldProps = {
   index: number;
@@ -22,42 +24,23 @@ const BoardField: React.FC<BoardFieldProps> = ({
 }) => (
   <td
     className="field"
-    key={index}
     style={{ backgroundColor: isHighlighted ? "lightblue" : undefined }}
   >
     {isCellEditable ? (
-      <input
-        className="editableField"
-        type="number"
-        pattern="[0-9]{1}"
+      <EditableField
+        index={index}
+        onChange={onChange}
+        onSelect={onSelect}
+        isSelected={isSelected}
         value={value}
-        onChange={(e) => {
-          onChange(index, e.target.value);
-        }}
-        onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
-          e.target.value = Math.max(1, parseInt(e.target.value, 10))
-            .toString()
-            .slice(0, 1);
-        }}
-        style={{
-          backgroundColor: isSelected ? "lightgrey" : undefined,
-        }}
-        onClick={() => {
-          onSelect(index);
-        }}
       />
     ) : (
-      <div
-        className="uneditableField"
-        onClick={() => {
-          onSelect(index);
-        }}
-        style={{
-          backgroundColor: isSelected ? "lightgrey" : undefined,
-        }}
-      >
-        {value}
-      </div>
+      <PrefilledField
+        value={value}
+        isSelected={isSelected}
+        index={index}
+        onSelect={onSelect}
+      />
     )}
   </td>
 );

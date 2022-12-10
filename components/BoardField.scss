@@ -13,31 +13,3 @@
 .field:nth-child(3n) {
   border-right: 3px solid darkblue;
 }
-
-.editableField {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 90%;
-  height: 90%;
-  border: none;
-  outline-style: none;
-  font-size: 19px;
-  font-weight: bold;
-  text-align: center;
-  background-color: transparent;
-}
-
-.uneditableField {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  cursor: pointer;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100%;
-  height: 100%;
-}

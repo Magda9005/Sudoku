@@ -1,0 +1,16 @@
+.uneditableField {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  height: 90%;
+  border: none;
+  outline-style: none;
+  font-size: 19px;
+  font-weight: bold;
+  text-align: center;
+  background-color: transparent;
+  cursor: pointer;
+  caret-color: transparent;
+}

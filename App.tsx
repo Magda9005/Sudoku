@@ -1,18 +1,18 @@
 import React from "react";
 import { useState, useEffect, useMemo } from "react";
-import { DifficultyLevel,Board } from "./constants and types/types";
+import { DifficultyLevel, Board } from "./constants and types/types";
 
 import {
   prepareBoard,
   isBoardCorrectlyCompleted,
-  findEmpty,  
+  findEmpty,
 } from "./logic/functions";
 import { useTimer } from "./hooks/useTimer";
 import Stopwatch from "./components/StopWatch";
 import Rows from "./components/Rows";
 import PauseModal from "./components/PauseModal";
 import GameOverModal from "./components/GameOverModal";
-import {exampleSudokuSolution} from './constants and types/constants';
+import { exampleSudokuSolution } from "./constants and types/constants";
 
 export function App() {
   const [board, setBoard] = useState(() =>
@@ -87,15 +87,15 @@ export function App() {
         <h1 className="header">Sudoku</h1>
         <div className="difficultyLevelAndTimerContainer">
           <div className="difficultyLevel">
-            <label>Poziom trudności: </label>
+            <label>Difficulty level: </label>
             <select
               onChange={(e) => {
                 handleChangeDifficulty(e.target.value);
               }}
             >
-              <option value="easy">Łatwy </option>
-              <option value="medium">Średni </option>
-              <option value="hard">Trudny </option>
+              <option value="easy">Easy </option>
+              <option value="medium">Medium </option>
+              <option value="hard">Hard </option>
             </select>
           </div>
           <Stopwatch
@@ -120,7 +120,7 @@ export function App() {
         </div>
       </div>
       {boardCompleted && (
-        <GameOverModal onClick={handleNewGame} result={timer.time} />
+        <GameOverModal onClick={handleNewGame} solutionTime={timer.time} />
       )}
     </>
   );

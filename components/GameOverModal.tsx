@@ -4,15 +4,18 @@ import "./GameOverModal.scss";
 
 type GameOverModalProps = {
   onClick: () => void;
-  result: number;
+  solutionTime: number;
 };
 
-const GameOverModal: React.FC<GameOverModalProps> = ({ onClick, result }) => (
+const GameOverModal: React.FC<GameOverModalProps> = ({
+  onClick,
+  solutionTime,
+}) => (
   <div className="gameOverModal">
-    <h2>Gratulacje! Rozwiązałeś sudoku</h2>
-    <p> Twój czas to: {formatTime(result)}</p>
+    <h2>Congratulations! You've solved the Sudoku.</h2>
+    <p> Your time result is: {formatTime(solutionTime)}</p>
     <button className="newGameBtn" onClick={onClick}>
-      Nowa gra
+      New game
     </button>
   </div>
 );
