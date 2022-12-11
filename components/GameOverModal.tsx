@@ -12,8 +12,8 @@ const GameOverModal: React.FC<GameOverModalProps> = ({
   solutionTime,
 }) => (
   <div className="gameOverModal">
-    <h2>Congratulations! You've solved the Sudoku.</h2>
-    <p> Your time result is: {formatTime(solutionTime)}</p>
+    <p className="gameOverText">Congratulations! You've solved the Sudoku.</p>
+    <p className="gameOverTimeResult"> Your time result is: <span className="timeResult">{formatTime(solutionTime)}</span></p>
     <button className="newGameBtn" onClick={onClick}>
       New game
     </button>

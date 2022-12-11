@@ -8,6 +8,7 @@ type StopwatchProps = {
   onStart: () => void;
   time: number;
   isActive: boolean;
+  boardCompleted:boolean;
 };
 
 const Stopwatch: React.FC<StopwatchProps> = ({
@@ -15,15 +16,16 @@ const Stopwatch: React.FC<StopwatchProps> = ({
   onStart,
   time,
   isActive,
+  boardCompleted
 }) => (
   <div className="timer">
     {formatTime(time)}
     {isActive ? (
-      <button className="stopBtn" onClick={onPause}>
+      <button className="stopBtn" onClick={onPause} >
         <StopIcon />
       </button>
     ) : (
-      <button className="playBtn" onClick={onStart}>
+      <button className="playBtn" onClick={onStart} disabled={boardCompleted}>
         <StartIcon />
       </button>
     )}

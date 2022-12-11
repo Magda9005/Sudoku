@@ -1,3 +1,5 @@
+@import "../sass/breakpoints.scss";
+
 .stopBtn,
 .playBtn {
   display: flex;
@@ -11,4 +13,12 @@
 .timer {
   display: flex;
   align-items: center;
+  font-family:'Roboto';
+  font-size:14px;
+
+
+  @include md{
+    font-family:'Roboto';
+    font-size:20px;
+  }
 }

@@ -103,10 +103,14 @@ export function App() {
             onStart={handleStart}
             time={timer.time}
             isActive={timer.isActive}
+            boardCompleted={boardCompleted}
           />
         </div>
         <div className="board">
-          <div className={boardCompleted ? "overlay" : undefined}></div>
+        {boardCompleted && (
+        <GameOverModal onClick={handleNewGame} solutionTime={timer.time} />
+      )}
+          {boardCompleted && <div className="overlay"></div>}
           {paused && <PauseModal onStart={handleStart} />}
           <table>
             <tbody>
@@ -119,9 +123,7 @@ export function App() {
           </table>
         </div>
       </div>
-      {boardCompleted && (
-        <GameOverModal onClick={handleNewGame} solutionTime={timer.time} />
-      )}
+     
     </>
   );
 }
