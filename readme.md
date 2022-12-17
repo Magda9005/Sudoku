@@ -6,7 +6,7 @@ Application created in React, using Typescript.
 ## Features of the app:
 - possibility to choose the difficulty level 
 - timer with the 'pause' option
-- for the better perception,row,column and square containing the clicked field have been highlighted
+- for the better visibility,row,column and square containing the clicked field have been highlighted
 
 ## How to setup the project:
 
