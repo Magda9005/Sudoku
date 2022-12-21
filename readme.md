@@ -7,6 +7,7 @@ Application created in React, using Typescript.
 - possibility to choose the difficulty level 
 - timer with the 'pause' option
 - for the better visibility, row, column and square containing the clicked field have been highlighted
+- unit tests included
 
 ## How to setup the project:
 
